@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 #Parameters for training
-learning_rate = 0.0003
+learning_rate = 0.0002
 batch_size = 8
 
 #Helpful function for noise sampling
@@ -107,7 +107,7 @@ d_fake = discriminator(fake)
 
 #Compile Model Together
 DisModel = Model(inputs = [real, latent], outputs = [d_real, d_fake])
-DisModel.compile(optimizer = RMSprop(lr = learning_rate), loss = ['mse', 'mse'])
+DisModel.compile(optimizer = RMSprop(lr = learning_rate * 0.2), loss = ['mse', 'mse'])
 
 
 #Freeze D parameters, unfreeze G parameters
@@ -130,10 +130,11 @@ GenModel.compile(optimizer = RMSprop(lr = learning_rate), loss = 'mse')
 #Import Data
 x_train = import_images("Swords", 400)
 
+step = 0
 
 while(True):
     #Finally, train the models.
-    for step in range(1000):
+    for _ in range(1000):
 
         #Get Real Images
         real_images = get_rand(x_train, batch_size)
@@ -156,14 +157,14 @@ while(True):
         print("D Loss Fake: " + str(d_loss_fake))
         print("G Loss Fake: " + str(g_loss))
 
-    #Sample
-    samples = generator.predict(noise(10))
-    
-    for i in range(10):
-        plt.figure(i)
-        plt.imshow(samples[i])
+        step = step + 1
 
-    plt.show()
+    #Sample
+    samples = generator.predict(noise(20))
+    
+    for i in range(20):
+        x = Image.fromarray(np.uint8(samples[i] * 255))
+        x.save("Results/Sample-"+str(i)+".png")
         
 
 
